@@ -38,7 +38,7 @@ Try {
 
     Write-Host "Install finish ! Your computer will restart in 10 sec" -ForegroundColor Green
     Start-Sleep -Seconds 10
-    Restart-Computer -Force
+    #Restart-Computer -Force
 } Catch {
     Write-Host "An error occurred during the promotion process: $_" -ForegroundColor Red
 }

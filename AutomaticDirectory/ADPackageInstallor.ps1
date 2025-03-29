@@ -1,8 +1,4 @@
-if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) 
-{
-    Write-Host "need admin permissions !" -ForegroundColor Red
-    Exit
-}
+
 Write-Host "Install started" -ForegroundColor Cyan
 Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools -Verbose
 
