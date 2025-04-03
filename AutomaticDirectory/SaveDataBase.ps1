@@ -1,6 +1,8 @@
+#required for form and popup
 Add-Type -AssemblyName Microsoft.VisualBasic
 Add-Type -AssemblyName System.Windows.Forms
 
+#create a dialog for select csv file
 Write-Host "starting database backup" -ForegroundColor Cyan
 $SaveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
 $SaveFileDialog.InitialDirectory = [Environment]::GetFolderPath("Desktop")
@@ -8,25 +10,30 @@ $SaveFileDialog.Filter = "CSV Files (*.csv)|*.csv"
 $SaveFileDialog.Title = "Select where to save the CSV file"
 $SaveFileDialog.FileName = "AD_Backup.csv"
 $Result = $SaveFileDialog.ShowDialog()
+#check if user select a file
 if ($Result -ne [System.Windows.Forms.DialogResult]::OK -or [string]::IsNullOrWhiteSpace($SaveFileDialog.FileName)) {
     Write-Host "Invalid file ! Try again !" -ForegroundColor Red
     Exit
 }
 $CsvPath = $SaveFileDialog.FileName
+#check if is a csv file
 if (-Not ($CsvPath -match "\.csv$")) {
     Write-Host "Invalid file format ! Please select a CSV file." -ForegroundColor Red
     Exit
 }
+#select separator
 $Delimiter = [Microsoft.VisualBasic.Interaction]::InputBox("Which separator (, or ;) ?", "CSV Separator", ",")
 if ($Delimiter -ne "," -and $Delimiter -ne ";") {
     Write-Host "Invalid separator ! Choose Only , or ;" -ForegroundColor Red
     Exit
 }
+#ask zhich atribute user want to save
 $Attributes = [Microsoft.VisualBasic.Interaction]::InputBox("Enter the attributes to save:", "Attributes Selection", "Name,SamAccountName,EmailAddress,Title")
 $AttributeList = $Attributes -split "," | ForEach-Object { $_.Trim() }
 Try {
     Write-Host "Fetching users from Active Directory..." -ForegroundColor Cyan
     $Users = Get-ADUser -Filter * -Property $AttributeList | Select-Object $AttributeList
+    #check if forest have user
     if ($Users.Count -eq 0) {
         Write-Host "No users found in Active Directory!" -ForegroundColor Red
         Exit
@@ -37,6 +44,7 @@ Try {
 } Catch {
     Write-Host "An error occurred while retrieving user information: $_" -ForegroundColor Red
 }
+#create file for group
 $GroupCsvPath = $CsvPath -replace "\.csv$", "_groups.csv"
 Try {
     Write-Host "Fetching groups from Active Directory..." -ForegroundColor Cyan
