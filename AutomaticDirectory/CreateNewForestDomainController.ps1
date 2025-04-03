@@ -1,15 +1,14 @@
-if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "need admin permissions !" -ForegroundColor Red
-    Exit
-}
+#ADD pour les popup
 Add-Type -AssemblyName Microsoft.VisualBasic
 
+#verif if AD is installed 
 Write-Host "checking AD installation" -ForegroundColor Cyan
 $adFeature = Get-WindowsFeature -Name AD-Domain-Services
 if (-Not $adFeature.Installed) {
     Write-Host "AD not installed ! Start ADPackageInstallor.ps1 before." -ForegroundColor Red
     Exit
 }
+#ask information for the domain
 $DomainName = [Microsoft.VisualBasic.Interaction]::InputBox("Choose Domain name (ex: Domolia.local):", "Domain Configuration", "Domolia.local")
 if ([string]::IsNullOrWhiteSpace($DomainName)) {
     Write-Host "Domain name is required!" -ForegroundColor Red
@@ -25,9 +24,11 @@ if ([string]::IsNullOrWhiteSpace($SafeModePwd)) {
     Write-Host "Password is required!" -ForegroundColor Red
     Exit
 }
+#convert mdp
 $SecurePwd = ConvertTo-SecureString $SafeModePwd -AsPlainText -Force
 
 Write-Host "starting server promotion" -ForegroundColor Cyan
+#Try to join the domain
 Try {
     Install-ADDSForest `
         -DomainName $DomainName `
