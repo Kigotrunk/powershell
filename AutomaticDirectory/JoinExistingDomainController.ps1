@@ -1,15 +1,14 @@
-if (-NOT ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "need admin permissions !" -ForegroundColor Red
-    Exit
-}
 
+#required for popup
 Add-Type -AssemblyName Microsoft.VisualBasic
 Write-Host "checking AD installation" -ForegroundColor Cyan
+#Try if ad is installed
 $adFeature = Get-WindowsFeature -Name AD-Domain-Services
 if (-Not $adFeature.Installed) {
     Write-Host "AD not installed ! Start ADPackageInstallor.ps1 before." -ForegroundColor Red
     Exit
 }
+#ask information to join domain
 $DomainName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter the domain address to join:", "Domain Configuration", "Domolia.local")
 if ([string]::IsNullOrWhiteSpace($DomainName)) {
     Write-Host "Domain address is required!" -ForegroundColor Red
@@ -28,6 +27,7 @@ if ([string]::IsNullOrWhiteSpace($AdminPwd)) {
 $SecurePwd = ConvertTo-SecureString $AdminPwd -AsPlainText -Force
 $Credentials = New-Object System.Management.Automation.PSCredential ($AdminUser, $SecurePwd)
 
+#try to join
 Write-Host "starting server promotion" -ForegroundColor Cyan
 Try {
     Install-ADDSDomainController `
