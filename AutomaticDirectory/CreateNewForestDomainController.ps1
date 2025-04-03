@@ -28,7 +28,7 @@ if ([string]::IsNullOrWhiteSpace($SafeModePwd)) {
 $SecurePwd = ConvertTo-SecureString $SafeModePwd -AsPlainText -Force
 
 Write-Host "starting server promotion" -ForegroundColor Cyan
-#Try to join the domain
+#Try to create the forest
 Try {
     Install-ADDSForest `
         -DomainName $DomainName `
