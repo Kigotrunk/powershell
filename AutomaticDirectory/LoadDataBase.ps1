@@ -1,12 +1,16 @@
+#required for popup and form
 Add-Type -AssemblyName Microsoft.VisualBasic
 Add-Type -AssemblyName System.Windows.Forms
 
 Write-Host "starting database loading" -ForegroundColor Cyan
+
+#create dialog for select csv file
 $FileDialog = New-Object System.Windows.Forms.OpenFileDialog
 $FileDialog.InitialDirectory = [Environment]::GetFolderPath("Desktop")
 $FileDialog.Filter = "CSV Files (*.csv)|*.csv"
 $FileDialog.Title = "Select the CSV file to load"
 $Result = $FileDialog.ShowDialog()
+#verif if is a csv file
 if ($Result -ne [System.Windows.Forms.DialogResult]::OK -or [string]::IsNullOrWhiteSpace($FileDialog.FileName)) {
     Write-Host "Invalid file ! Try again !" -ForegroundColor Red
     Exit
@@ -16,17 +20,20 @@ if (-Not ($CsvPath -match "\.csv$")) {
     Write-Host "Invalid file format ! Please select a CSV file." -ForegroundColor Red
     Exit
 }
+#select a separator
 $Delimiter = [Microsoft.VisualBasic.Interaction]::InputBox("Which separator (, or ;) ?", "CSV Separator", ",")
 if ($Delimiter -ne "," -and $Delimiter -ne ";") {
     Write-Host "Invalid separator ! Choose Only , or ;" -ForegroundColor Red
     Exit
 }
+#stock csv file information in UserDAta
 Try {
     $UserData = Import-Csv -Path $CsvPath -Delimiter $Delimiter -ErrorAction Stop
 } Catch {
     Write-Host "Error loading CSV file: $_" -ForegroundColor Red
     Exit
 }
+#create User if not exist
 foreach ($User in $UserData) {
     Try {
         $UserExists = Get-ADUser -Filter {SamAccountName -eq $User.SamAccountName} -ErrorAction SilentlyContinue
@@ -48,6 +55,7 @@ foreach ($User in $UserData) {
     }
 }
 Write-Host "Finish for users !" -ForegroundColor Green
+#check if csv file _group exist
 $GroupCsvPath = $CsvPath -replace '\.csv$', '_groups.csv'
 if (Test-Path $GroupCsvPath) {
     Try {
@@ -56,7 +64,7 @@ if (Test-Path $GroupCsvPath) {
         Write-Host "Error loading group CSV file: $_" -ForegroundColor Red
         Exit
     }
-
+    #try to create group if not exist in AD
     foreach ($Group in $GroupData) {
         Try {
             $GroupExists = Get-ADGroup -Filter {Name -eq $Group.Name} -ErrorAction SilentlyContinue
