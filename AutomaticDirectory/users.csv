@@ -1,0 +1,5 @@
+Name,SamAccountName,UserPrincipalName,GivenName,Surname
+John Doe,jdoe,jdoe@mondomaine.local,John,Doe
+Jane Smith,jsmith,jsmith@mondomaine.local,Jane,Smith
+Alice Martin,amartin,amartin@mondomaine.local,Alice,Martin
+Bob Dupont,bdupont,bdupont@mondomaine.local,Bob,Dupont
